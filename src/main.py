@@ -19,6 +19,33 @@ from ekf import ExtendedKalmanFilter
 
 ########## ------------------------- Const variables and helper classes ------------------------##########
 
+# ---- Robot and sim specifics ----
+# Distance between the wheels of the robot
+ROBOT_WIDTH = 0.5 # m
+# Because we get out score after 20 seconds from the start of the simulation.
+# close the connection to the webscoket after 20 seconds
+END_SIM = 20 # seconds
+# Physical constraints for the robot
+ACCELERATION_LIMITS = [-1.0, 1.0]
+VELOCITY_LIMITS = [-2.0, 2.0]
+# You can try the controller + ekf setup with different reference trajectories! 
+# Possible options are "straight-line", "semi-circle"
+REF_TRAJ_NAME = "course-8"
+
+# ---- Initial values ----
+# We could initialize this based on the reference trajectory we have, but for simplicity initialize it to 0
+REF_TRAJ_INITIAL = np.zeros(6) # [x_ref, y_ref, xd_ref, yd_ref, xdd_ref, ydd_ref]
+U_INITIAL = np.array([0.0, 0.0]) # [v_left, v_right]
+# We know that the robot starts at the origin, pointing towards X-axis, i.e theta = 0
+X_INITIAL = np.zeros(5) # [x, y, θ, v, ω]
+# These are only initial process covariances for our 5x1 states. EKF updates the covariances through the simulation
+P_INITIAL = np.diag([1.0**2, 1.0**2, np.deg2rad(10.0)**2, 0.5**2, 0.2**2])
+
+# ---- Controller specifics ----
+# The values have been tuned to prioritize tracking and reduce oscillations 
+K_P = 1.35
+K_D = 5.5
+
 
 @dataclass
 class RobotState:
@@ -49,33 +76,6 @@ class DataBuffers:
     ref_heading: List
     # Time history
     time_stamps: List
-
-# ---- Robot and sim specifics ----
-# Distance between the wheels of the robot
-ROBOT_WIDTH = 0.5 # m
-# Because we get out score after 20 seconds from the start of the simulation.
-# close the connection to the webscoket after 20 seconds
-END_SIM = 20 # seconds
-# Physical constraints for the robot
-ACCELERATION_LIMITS = [-1.0, 1.0]
-VELOCITY_LIMITS = [-2.0, 2.0]
-# You can try the controller + ekf setup with different reference trajectories! 
-# Possible options are "straight-line", "semi-circle"
-REF_TRAJ_NAME = "course-8"
-
-# ---- Initial values ----
-# We could initialize this based on the reference trajectory we have, but for simplicity initialize it to 0
-REF_TRAJ_INITIAL = np.zeros(6) # [x_ref, y_ref, xd_ref, yd_ref, xdd_ref, ydd_ref]
-U_INITIAL = np.array([0.0, 0.0]) # [v_left, v_right]
-# We know that the robot starts at the origin, pointing towards X-axis, i.e theta = 0
-X_INITIAL = np.zeros(5) # [x, y, θ, v, ω]
-# These are only initial process covariances for our 5x1 states. EKF updates the covariances through the simulation
-P_INITIAL = np.diag([1.0**2, 1.0**2, np.deg2rad(10.0)**2, 0.5**2, 0.2**2])
-
-# ---- Controller specifics ----
-# The values have been tuned to prioritize tracking and reduce oscillations 
-K_P = 1.35
-K_D = 5.5
 
 ########## ------------------------- Update co-routine ------------------------------##########
 
