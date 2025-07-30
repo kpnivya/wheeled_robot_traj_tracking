@@ -44,7 +44,7 @@ P_INITIAL = np.diag([1.0**2, 1.0**2, np.deg2rad(10.0)**2, 0.5**2, 0.2**2])
 # ---- Controller specifics ----
 # The values have been tuned to prioritize tracking and reduce oscillations 
 K_P = 1.35
-K_D = 5.7
+K_D = 5.5
 
 
 @dataclass
@@ -103,13 +103,10 @@ async def update(websocket,
         tuple: A tuple containing the updated state variables:
                (time_state: TimeState, robot_state: RobotState)
     """
-    try:
-        msg = await asyncio.wait_for(websocket.recv(), timeout=1.0)
-        data = json.loads(msg)
-    except asyncio.TimeoutError:
-        print("Skipping state. Didn't receive serve data")
-        return time_state, robot_state  # Skip this frame gracefully
 
+    msg = await websocket.recv()
+    data = json.loads(msg)
+    
     if data.get("message_type") == "sensors":
         # If the message received is of "sensors" type log all the information
         # This is useful for plotting sensor observations later
@@ -254,4 +251,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\nProgram interrupted by user (Ctrl+C). Exiting cleanly.")
+        print("\nProgram interrupted by user. Exiting cleanly.")

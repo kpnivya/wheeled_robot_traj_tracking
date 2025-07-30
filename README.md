@@ -4,31 +4,30 @@
 A lightweight Python project that simulates a differential wheeled robot, using only open-source Python packages. The project contains code for having a differential wheeled robot track a pre-defined reference trajectory. 
 
 ## System Requirements 
+Conda is required to run the sciprt. Install conda for your system if needed from: https://docs.conda.io/projects/conda/en/stable/user-guide/install/index.html
 The code was developed and tested on Python 3.10.18. To avoid any issues use Python 3.10.x or higher.
 
 ## Installation 
-1. Create and activate a virtual environment
-
-### macOs/Linux
+1. Create a new conda environment 
 ```
-python3 -m venv diff-robot-env
-source diff-robot-env/bin/activate
+conda create -n diff-robot-env python=3.10.18 -y
 ```
-### Windows
+2. Activate the environment
 ```
-python -m venv diff-robot-env
-diff-robot-env\Scripts\activate
+conda activate diff-robot-env
 ```
-2. Clone the repository 
+3. Clone the repository 
 ```
 git clone https://github.com/kpnivya/wheeled_robot_traj_tracking.git
 ```
 ```
 cd wheeled_robot_traj_tracking
 ```
-3. Install dependencies 
+4. Install dependencies 
 ```
 pip install --upgrade pip
+```
+```
 pip install -r requirements.txt
 ```
 4. Run the simulation!
