@@ -244,7 +244,7 @@ def plot_x_y_thetha(
     ax_y.set_title("Reference Y vs Robot Y")
     ax_y.set_xlim(0, 20)
     if ref_traj_name == "course-8":
-        ax_y.set_ylim(-3, 3)
+        ax_y.set_ylim(-5, 5)
     elif ref_traj_name == "semi-circle":
         ax_y.set_ylim(-5, 5)
     else:

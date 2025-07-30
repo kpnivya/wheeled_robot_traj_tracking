@@ -29,7 +29,9 @@ END_SIM = 20 # seconds
 ACCELERATION_LIMITS = [-1.0, 1.0]
 VELOCITY_LIMITS = [-2.0, 2.0]
 # You can try the controller + ekf setup with different reference trajectories! 
-# Possible options are "straight-line", "semi-circle"
+# Possible options are "course-8", this is the original reference trajectory. 
+# Other options are "straight-line", and "semi-circle" that I tried to make sure controller
+# can work on other trajectories
 REF_TRAJ_NAME = "course-8"
 
 # ---- Initial values ----
@@ -44,7 +46,7 @@ P_INITIAL = np.diag([1.0**2, 1.0**2, np.deg2rad(10.0)**2, 0.5**2, 0.2**2])
 # ---- Controller specifics ----
 # The values have been tuned to prioritize tracking and reduce oscillations 
 K_P = 1.35
-K_D = 5.2
+K_D = 5.5
 
 
 @dataclass
@@ -135,7 +137,6 @@ async def update(websocket,
         # Gather all the latest sensor measurements into a list
         z = [buffers.gps_data[-1][0], buffers.gps_data[-1][1], buffers.accel_data[-1][0], 
              buffers.accel_data[-1][1], buffers.gyro_data[-1][0]]
-        
         # Compute dt
         now = time.time()
         dt = now - time_state.t_prev
@@ -164,6 +165,8 @@ async def update(websocket,
     # This could be the L2 norm!
     elif data.get("message_type") == "score":
         print("\nReceived L2 score :", data["score"], "\n")
+    else:
+        print("\n Received unrecognized message: ", data)
     
     # Visualize the live-plot as the robot moves
     plot_live_data(handles=plot_handles,
