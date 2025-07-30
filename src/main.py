@@ -44,7 +44,7 @@ P_INITIAL = np.diag([1.0**2, 1.0**2, np.deg2rad(10.0)**2, 0.5**2, 0.2**2])
 # ---- Controller specifics ----
 # The values have been tuned to prioritize tracking and reduce oscillations 
 K_P = 1.35
-K_D = 5.5
+K_D = 5.7
 
 
 @dataclass
@@ -103,8 +103,12 @@ async def update(websocket,
         tuple: A tuple containing the updated state variables:
                (time_state: TimeState, robot_state: RobotState)
     """
-    msg = await websocket.recv()
-    data = json.loads(msg)
+    try:
+        msg = await asyncio.wait_for(websocket.recv(), timeout=1.0)
+        data = json.loads(msg)
+    except asyncio.TimeoutError:
+        print("Skipping state. Didn't receive serve data")
+        return time_state, robot_state  # Skip this frame gracefully
 
     if data.get("message_type") == "sensors":
         # If the message received is of "sensors" type log all the information
@@ -234,7 +238,7 @@ async def main():
             )
 
         await websocket.close()
-        print(f"WebSocket connection closed after {END_SIM} seconds. Press Ctrl+C to exit program.")
+        print(f"WebSocket connection closed after {END_SIM} seconds. Close plots whenever ready to exit the program.")
         
         # Plotting robot and reference trajectory's x, y, theta 
         plot_x_y_thetha(reference_poses=buffers.ref_poses,
@@ -247,4 +251,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\nProgram interrupted by user (Ctrl+C). Exiting cleanly.")
