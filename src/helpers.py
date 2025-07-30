@@ -72,7 +72,7 @@ async def connect() -> websockets.WebSocketClientProtocol:
     Returns:
         websockets.WebSocketClientProtocol: The connected websocket client protocol object.
     """
-
+    
     uri = "ws://91.99.103.188:8765"
     websocket = await websockets.connect(uri)
     print("Connected to the websocket!")
@@ -92,8 +92,11 @@ class PlotHandles:
     robot_line: Line2D
     ref_line: Line2D
 
-def initialize_live_plot() -> PlotHandles:
+def initialize_live_plot(ref_traj_name: str) -> PlotHandles:
     """Initializes a live plot for robot tracking, including reference trajectory, GPS data, and EKF estimates.
+    
+    Args:
+        ref_traj_name (str): Name of the reference trajectory. This is used to set the axes limits.
     Returns:
         PlotHandles: Object containing figure, axis, and Line2D handles for live plotting.
     """
@@ -112,13 +115,18 @@ def initialize_live_plot() -> PlotHandles:
     gps_line, = ax.plot([], [], 'b-', label='GPS Path')  # blue line for GPS path
     robot_line, = ax.plot([], [], 'm-', label='Robot Path')  # magenta line for robot path
     ref_line, = ax.plot([], [], 'g-', label='Reference')  # green line for reference
-    ax.set_xlim(-3, 3)
-    ax.set_ylim(-2, 8)
     ax.set_xlabel("X in (m)")
     ax.set_ylabel("Y in (m)")
     ax.grid(True)
     ax.set_title("Real-Time XY Coordinates")
     ax.legend()
+    if (ref_traj_name == "course-8") or (ref_traj_name == "semi-circle"):
+        ax.set_xlim(-3, 3)
+        ax.set_ylim(-2, 8)
+    else:
+        ax.set_xlim(0, 8)
+        ax.set_ylim(0, 8)
+
 
     return PlotHandles(
         fig=fig,
@@ -187,6 +195,7 @@ def plot_x_y_thetha(
     reference_heading: list[float],
     estimated_poses: list[list[float]],
     time_stamps: list[float],
+    ref_traj_name: str
 ) -> None:
     """Plots robot and reference trajectory heading, X, and Y positions over time.
     Args:
@@ -194,7 +203,7 @@ def plot_x_y_thetha(
         reference_heading (list[float])     : List of reference heading angles in (radians).
         estimated_poses (list[list[float]]) : List of estimated robot states [x, y, θ, v, ω] per entry.
         time_stamps (list[float])           : List of time stamps corresponding to the data.
-
+        ref_traj_name (str)                 : Name of the reference trajectory. This is used to set the axes limits.
     Returns:
         None
     """
@@ -219,7 +228,12 @@ def plot_x_y_thetha(
     robot_x_line, = ax_x.plot([], [], 'm-', label='Robot X')
     ax_x.set_title("Reference X vs Robot X")
     ax_x.set_xlim(0, 20)
-    ax_x.set_ylim(-3, 3)
+    if ref_traj_name == "course-8":
+        ax_x.set_ylim(-3, 3)
+    elif ref_traj_name == "semi-circle":
+        ax_x.set_ylim(-5, 5)
+    else:
+        ax_x.set_ylim(0, 8)
     ax_x.set_xlabel("Time (sec)")
     ax_x.set_ylabel("X in (m)")
     ax_x.legend()
@@ -229,7 +243,12 @@ def plot_x_y_thetha(
     robot_y_line, = ax_y.plot([], [], 'm-', label='Robot Y')
     ax_y.set_title("Reference Y vs Robot Y")
     ax_y.set_xlim(0, 20)
-    ax_y.set_ylim(-5, 5)
+    if ref_traj_name == "course-8":
+        ax_y.set_ylim(-3, 3)
+    elif ref_traj_name == "semi-circle":
+        ax_y.set_ylim(-5, 5)
+    else:
+        ax_y.set_ylim(0, 8)
     ax_y.set_xlabel("Time (sec)")
     ax_y.set_ylabel("Y in (m)")
     ax_y.legend()

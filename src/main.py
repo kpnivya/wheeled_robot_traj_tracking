@@ -44,7 +44,7 @@ P_INITIAL = np.diag([1.0**2, 1.0**2, np.deg2rad(10.0)**2, 0.5**2, 0.2**2])
 # ---- Controller specifics ----
 # The values have been tuned to prioritize tracking and reduce oscillations 
 K_P = 1.35
-K_D = 5.5
+K_D = 5.2
 
 
 @dataclass
@@ -183,7 +183,7 @@ async def main():
     websocket = await connect()
     try:
         # Initialize live-plot. This needs to happen only once
-        plot_handles = initialize_live_plot()
+        plot_handles = initialize_live_plot(REF_TRAJ_NAME)
 
         # Timing setup
         t_start = time.time()
@@ -241,7 +241,8 @@ async def main():
         plot_x_y_thetha(reference_poses=buffers.ref_poses,
                         reference_heading=buffers.ref_heading,
                         estimated_poses=buffers.est_poses,
-                        time_stamps=buffers.time_stamps)
+                        time_stamps=buffers.time_stamps,
+                        ref_traj_name=REF_TRAJ_NAME)
 
     except websockets.ConnectionClosed:
         print(f"Connection has been closed.")
